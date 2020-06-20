@@ -15,7 +15,7 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 
 def parse_args():
-    loadfile = directory.models/'saved/02-9000.pt'
+    loadfile = directory.models/'saved/06-9999.pt'
 #   loadfile = Path('none')
     save_dir = directory.models/'saved'
     parser = argparse.ArgumentParser()
@@ -32,13 +32,14 @@ def parse_args():
         '--save_step', type=int, default=1000,
         help='step size for saving trained models'
     )
+    parser.add_argument('--batch_size'   , type=int  , default=64)
+    parser.add_argument('--fine_tune'    , type=bool , default=False)
     parser.add_argument('--is_xe_loss'   , type=bool , default=True)
-    parser.add_argument('--save_dir'     , type=Path , default=save_dir)
+    parser.add_argument('--learning_rate', type=float, default=0.0005)
     parser.add_argument('--loadfile'     , type=Path , default=loadfile)
     parser.add_argument('--num_epochs'   , type=int  , default=100)
-    parser.add_argument('--batch_size'   , type=int  , default=32)
     parser.add_argument('--num_workers'  , type=int  , default=8)
-    parser.add_argument('--learning_rate', type=float, default=0.0005)
+    parser.add_argument('--save_dir'     , type=Path , default=save_dir)
     args = parser.parse_args()
     args.formatted = directory.formatted
     args.save_dir.mkdir(exist_ok=True, parents=True)
@@ -89,19 +90,21 @@ def train(encoder, decoder, data, args, vocab):
                                f' Perplexity [{perplexity:5.4f}]')
                 print(update)
             if (step+1) % args.save_step == 0:
-                storage.save_checkpoint(args.save_dir, epoch, step+1,
-                                        encoder, decoder)
+                storage.save_checkpoint(args.save_dir, epoch, 0, encoder, decoder)
         storage.save_checkpoint(args.save_dir, epoch, 9999, encoder, decoder)
 
 
 def main():
     args = parse_args()
     encoder, decoder = storage.load_models(args.loadfile)
+    if args.fine_tune:
+        print('Setting layers 3 and 4 of ResNet trainable')
+        encoder.resnet.set_tunable()
     vocab = storage.load_vocab()
     args.base_epoch = storage.load_base_epoch(args.loadfile)
-    train_image_dir  = directory.images/'train'
+    train_image_dir = directory.images/'train'
     train_cap2img = directory.annotations/'train_cap2img.json'
-    train_img2caps   = directory.annotations/'train_img2caps.json'
+    train_img2caps = directory.annotations/'train_img2caps.json'
     train_data = data_loader.get_loader(
         train_image_dir, train_cap2img.as_posix(),
         train_img2caps.as_posix(), vocab, args.batch_size,
