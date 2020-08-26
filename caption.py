@@ -14,8 +14,9 @@ from models import Beam
 
 
 def parse_args():
-    loadfile       = directory.models/'saved/03-4000.pt'
-    val_annotation = directory.annotations/'val5000_img2caps.json'
+    loadfile       = directory.models/'saved/27-0000.pt'
+#   val_annotation = directory.annotations/'val5000_img2caps.json'
+    val_annotation = directory.annotations/'train_img2caps.json'
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--image', type=str,

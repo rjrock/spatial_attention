@@ -5,6 +5,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
+import metrics
+# import models
 import utils.data_loader as data_loader
 import utils.directory as directory
 import utils.settings as settings
@@ -15,7 +17,7 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 
 def parse_args():
-    loadfile = directory.models/'saved/06-9999.pt'
+    loadfile = directory.models/'saved/27-0000.pt'
 #   loadfile = Path('none')
     save_dir = directory.models/'saved'
     parser = argparse.ArgumentParser()
@@ -29,10 +31,14 @@ def parse_args():
         help='step size for prining log info'
     )
     parser.add_argument(
+        '--metric_step', type=int, default=1000,
+        help='step size to visualize metrics'
+    )
+    parser.add_argument(
         '--save_step', type=int, default=1000,
         help='step size for saving trained models'
     )
-    parser.add_argument('--batch_size'   , type=int  , default=64)
+    parser.add_argument('--batch_size'   , type=int  , default=80)
     parser.add_argument('--fine_tune'    , type=bool , default=False)
     parser.add_argument('--is_xe_loss'   , type=bool , default=True)
     parser.add_argument('--learning_rate', type=float, default=0.0005)
@@ -55,7 +61,7 @@ def calculate_xe_loss(encoder, decoder, images, padded_inputs, padded_targets, l
     return xe_loss
 
 
-def train(encoder, decoder, data, args, vocab):
+def train(encoder, decoder, data, val_data, args):
     encoder = encoder.train()
     decoder = decoder.train()
     params = (list(decoder.parameters())
@@ -64,6 +70,10 @@ def train(encoder, decoder, data, args, vocab):
     optimizer = torch.optim.Adam(params, lr=args.learning_rate)
     total_step = len(data)
     total_epochs = args.base_epoch + args.num_epochs
+
+    metrics.evaluate(encoder, decoder, val_data)
+    exit(0)
+
     for i in range(args.num_epochs):
         epoch = args.base_epoch + i
         for step, (images, padded_inputs, padded_targets,
@@ -91,6 +101,8 @@ def train(encoder, decoder, data, args, vocab):
                 print(update)
             if (step+1) % args.save_step == 0:
                 storage.save_checkpoint(args.save_dir, epoch, 0, encoder, decoder)
+            if (step+1) % args.metric_step == 0:
+                metrics.evaluate.evaluate(encoder, decoder, train_data2)
         storage.save_checkpoint(args.save_dir, epoch, 9999, encoder, decoder)
 
 
@@ -105,12 +117,19 @@ def main():
     train_image_dir = directory.images/'train'
     train_cap2img = directory.annotations/'train_cap2img.json'
     train_img2caps = directory.annotations/'train_img2caps.json'
-    train_data = data_loader.get_loader(
+    train_data = data_loader.train_loader(
         train_image_dir, train_cap2img.as_posix(),
         train_img2caps.as_posix(), vocab, args.batch_size,
         shuffle=True, num_workers=args.num_workers
     )
-    train(encoder, decoder, train_data, args, vocab)
+    val_image_dir = directory.images/'val'
+    val_cap2img = directory.annotations/'val5000_cap2img.json'
+    val_img2caps = directory.annotations/'val5000_img2caps.json'
+    val_data = data_loader.validation_loader(
+        val_image_dir, val_img2caps.as_posix(), vocab, args.batch_size,
+        args.num_workers
+    )
+    train(encoder, decoder, train_data, val_data, args)
 
 
 if __name__ == '__main__':

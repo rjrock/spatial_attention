@@ -13,12 +13,13 @@ def plot_attention(α, token, img, i):
     rows = 2
     cols = 10
     α = α.reshape((7, 7))
+    print(np.max(α))
     weights = Image.fromarray(α)
     weights = weights.resize((224, 224), resample=PIL.Image.BILINEAR)
     plt.subplot(rows, cols, i)
     plt.imshow(img)
     if i != 1:
-        plt.imshow(np.asarray(weights), alpha=0.7)
+        plt.imshow(np.asarray(weights), alpha=0.65)
         plt.set_cmap(cm.Greys_r)
     plt.xlabel(f'{token}')
     plt.xticks([])

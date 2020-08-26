@@ -33,5 +33,6 @@ def sample_random_image(img2caps):
     nums = list(range(len(img2caps)))
     idx = np.random.choice(nums, size=1).squeeze(axis=0)
     imagename = list(img2caps.keys())[idx]
-    image = load_image(directory.images/'val'/imagename, is_transform=True)
+#   image = load_image(directory.images/'val'/imagename, is_transform=True)
+    image = load_image(directory.images/'train'/imagename, is_transform=True)
     return image
