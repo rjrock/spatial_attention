@@ -4,7 +4,7 @@ https://github.com/vrama91/coco-caption.
 Of note, the reference code does not faitfhully calculate term
 frequency.
 
-See cider.pdf for an explanation of what this file does.
+See ./notes/cider.pdf for an explanation of what this file does.
 '''
 
 import nltk
