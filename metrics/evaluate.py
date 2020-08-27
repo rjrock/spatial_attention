@@ -1,10 +1,13 @@
 '''evaluate.py'''
 
-import matplotlib.pyplot as plt
-
 import metrics.bleu
 import models
-import utils.image as image
+
+from tqdm import tqdm
+
+
+def setup():
+    pass
 
 
 def evaluate(encoder, decoder, data_loader):
@@ -14,11 +17,13 @@ def evaluate(encoder, decoder, data_loader):
     decoder.eval()
     model = models.Model(encoder, decoder)
     bleu_score = 0
-    for i, (images, refs) in enumerate(data_loader):
+    print('Evaluating metrics... ')
+    # TODO: Use cider
+    for i, (images, refs) in enumerate(tqdm(data_loader)):
         captions = model.max_caption(images)
         bleu_score += bleu.score(refs, captions)
     bleu_score /= len(data_loader)
-    print(f'\tBleu score = {bleu_score:.4f}')
+    print(f'\tBleu-{bleu.m} score = {bleu_score:.4f}')
     if training:
         encoder.train()
         decoder.train()

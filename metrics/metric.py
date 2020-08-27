@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 
 
-def count_ngrams(self, words, m, split=False):
+def count_ngrams(words, m, split=False):
     '''Return count of ngrams for tokenized words.'''
     counts = defaultdict(int)
     for k in range(1, m+1):

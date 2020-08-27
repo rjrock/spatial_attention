@@ -1,16 +1,19 @@
 '''preprocess.py'''
 
 import json
+import pickle
 
 from PIL import Image
 from collections import defaultdict
 from tqdm import tqdm
 
+import metrics.cider
 import utils.directory as directory
 
 
 format_dir = directory.data/'formatted'
 original_dir  = directory.data/'original'
+cider_dir = directory.data/'cider'
 
 
 def resize_images(indir, outdir, size):
@@ -93,10 +96,23 @@ def resize():
         resize_images(indir, outdir, size)
 
 
+def create_cider_ngrams():
+    val5000_img2caps = format_dir/'annotations'/'val5000_img2caps.json'
+    val5000_outfile = cider_dir/'val5000_img2caps_ngram.pkl'
+    cider_dir.mkdir(exist_ok=True)
+    with open(val5000_img2caps, 'r') as f:
+        data = json.load(f)
+    corpus = metrics.cider.extract_document_frequency(data)
+    with open(val5000_outfile, 'wb') as f:
+        pickle.dump(corpus, f)
+        print(f'Wrote cider data to {val5000_outfile}')
+
+
 def main():
 #   resize()
-    format_()
-    split_validation()
+#   format_()
+#   split_validation()
+    create_cider_ngrams()
 
 
 if __name__ == '__main__':

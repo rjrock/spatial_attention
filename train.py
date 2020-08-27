@@ -31,7 +31,7 @@ def parse_args():
         help='step size for prining log info'
     )
     parser.add_argument(
-        '--metric_step', type=int, default=1000,
+        '--metric_step', type=int, default=100,
         help='step size to visualize metrics'
     )
     parser.add_argument(
@@ -70,10 +70,7 @@ def train(encoder, decoder, data, val_data, args):
     optimizer = torch.optim.Adam(params, lr=args.learning_rate)
     total_step = len(data)
     total_epochs = args.base_epoch + args.num_epochs
-
-    metrics.evaluate(encoder, decoder, val_data)
-    exit(0)
-
+    scorer = metrics.Scorer(use_bleu=True, use_cider=True, use_meteor=True)
     for i in range(args.num_epochs):
         epoch = args.base_epoch + i
         for step, (images, padded_inputs, padded_targets,
@@ -102,7 +99,7 @@ def train(encoder, decoder, data, val_data, args):
             if (step+1) % args.save_step == 0:
                 storage.save_checkpoint(args.save_dir, epoch, 0, encoder, decoder)
             if (step+1) % args.metric_step == 0:
-                metrics.evaluate.evaluate(encoder, decoder, train_data2)
+                scorer.score(encoder, decoder, val_data)
         storage.save_checkpoint(args.save_dir, epoch, 9999, encoder, decoder)
 
 
@@ -123,7 +120,7 @@ def main():
         shuffle=True, num_workers=args.num_workers
     )
     val_image_dir = directory.images/'val'
-    val_cap2img = directory.annotations/'val5000_cap2img.json'
+#   val_cap2img = directory.annotations/'val5000_cap2img.json'
     val_img2caps = directory.annotations/'val5000_img2caps.json'
     val_data = data_loader.validation_loader(
         val_image_dir, val_img2caps.as_posix(), vocab, args.batch_size,

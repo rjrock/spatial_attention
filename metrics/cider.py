@@ -7,11 +7,27 @@ frequency.
 See cider.pdf for an explanation of what this file does.
 '''
 
+import nltk
 import numpy as np
 
+import utils.storage as storage
+
 from collections import defaultdict
+from tqdm import tqdm
 
 from metrics.metric import Metric, count_ngrams
+
+
+def extract_document_frequency(data):
+    vocab = storage.load_vocab()
+    captions = []
+    for image_captions in tqdm(list(data.values())):
+        for caption in image_captions:
+            caption = nltk.tokenize.word_tokenize(caption.lower())
+            caption.append(vocab.end)
+            captions.append(caption)
+    corpus = compute_document_frequency(captions, m=4)
+    return corpus
 
 
 def compute_document_frequency(refs, m):
@@ -20,8 +36,8 @@ def compute_document_frequency(refs, m):
     for gram_ref in gram_refs:
         for ngram in set([ngram for (ngram, count) in gram_ref.items()]):
             document_frequency[ngram] += 1
-    corpus = {'num_images': len(refs),
-              'df': document_frequency}
+    corpus = {'df': document_frequency,
+              'num_images': len(refs)}
     return corpus
 
 
@@ -35,20 +51,22 @@ class Cider(Metric):
     def gramify(self, string):
         return count_ngrams(string, self.m)
 
-    def score(self, tests, all_refs):
+    def score(self, all_refs, tests):
         '''tests and all_refs should be tokenized.'''
         scores = np.zeros(len(tests))
-        for i, key in enumerate(tests.keys()):
-            test = tests[key][0]
-            refs = all_refs[key]
+
+        for i in range(len(tests)):
+            test = tests[i]
+            refs = all_refs[i]
             tfidf_test = self.cap2tfidf(test)
             ngram_scores = np.zeros(self.m)
             for ref in refs:
                 tfidf_ref = self.cap2tfidf(ref)
                 δ = len(test) - len(ref)
                 ngram_scores += self.similarity(tfidf_test, tfidf_ref, δ)
+            # Multiply by 10 for magnitude similar to Bleu
             scores[i] = (10/len(refs)) * ngram_scores.mean()
-        return scores.mean(), scores
+        return scores.mean()
 
     def similarity(self, tfidf_hyp, tfidf_ref, δ, σ=6):
         '''Compute equation 4.'''

@@ -8,6 +8,7 @@ top         = cwd.parent
 vocab       = top/'vocab'
 data        = top/'data'
 formatted   = data/'formatted'
+cider       = data/'cider'
 annotations = formatted/'annotations'
 images      = formatted/'images'
 embedding   = top/'vocab'/'embedding'
