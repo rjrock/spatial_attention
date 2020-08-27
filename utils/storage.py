@@ -25,7 +25,7 @@ def load_models(loadfile):
         decoder.set_embedding_weights(glove)
         print('Did not load saved model. Setting word embedding weights')
     else:
-        print('Did not load a model.')
+        print('Did not load a model nor set GloVe embedding weights.')
     encoder = encoder.to(settings.device)
     decoder = decoder.to(settings.device)
     return encoder, decoder

@@ -49,7 +49,7 @@ def create_cap2img(data):
     return cap2img
 
 
-def format_():
+def extract_training_annotations():
     global format_dir, original_dir
     infiles = [('train', original_dir/'annotations'/'captions_train2014.json')]
     outdir = format_dir/'annotations'
@@ -67,7 +67,7 @@ def format_():
             json.dump(img2caps, f)
 
 
-def split_validation():
+def extract_validation_annotations():
     global original_dir
     val_file = original_dir/'annotations'/'captions_val2014.json'
     data = json.load(open(val_file))
@@ -103,15 +103,16 @@ def create_cider_ngrams():
     with open(val5000_img2caps, 'r') as f:
         data = json.load(f)
     corpus = metrics.cider.extract_document_frequency(data)
+    print(f'Extracting cider n-grams from {val5000_outfile}')
     with open(val5000_outfile, 'wb') as f:
         pickle.dump(corpus, f)
         print(f'Wrote cider data to {val5000_outfile}')
 
 
 def main():
-#   resize()
-#   format_()
-#   split_validation()
+    resize()
+    extract_training_annotations()
+    extract_validation_annotations()
     create_cider_ngrams()
 
 

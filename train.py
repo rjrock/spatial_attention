@@ -6,7 +6,6 @@ import torch
 import torch.nn.functional as F
 
 import metrics
-import models
 import utils.data_loader as data_loader
 import utils.directory as directory
 import utils.settings as settings
@@ -17,8 +16,7 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 
 def parse_args():
-    loadfile = directory.models/'saved/27-0000.pt'
-#   loadfile = Path('none')
+    loadfile = Path('none')
     save_dir = directory.models/'saved'
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -28,7 +26,7 @@ def parse_args():
     )
     parser.add_argument(
         '--log_step', type=int, default=10,
-        help='step size for prining log info'
+        help='step size for printing log info'
     )
     parser.add_argument(
         '--metric_step', type=int, default=1000,
@@ -100,7 +98,7 @@ def train(encoder, decoder, data, val_data, args):
                 storage.save_checkpoint(args.save_dir, epoch, 0, encoder, decoder)
             if (step+1) % args.metric_step == 0:
                 scorer.score(encoder, decoder, val_data)
-        storage.save_checkpoint(args.save_dir, epoch, 9999, encoder, decoder)
+        storage.save_checkpoint(args.save_dir, epoch, 0, encoder, decoder)
 
 
 def main():
@@ -120,7 +118,6 @@ def main():
         shuffle=True, num_workers=args.num_workers
     )
     val_image_dir = directory.images/'val'
-#   val_cap2img = directory.annotations/'val5000_cap2img.json'
     val_img2caps = directory.annotations/'val5000_img2caps.json'
     val_data = data_loader.validation_loader(
         val_image_dir, val_img2caps.as_posix(), vocab, args.batch_size,
