@@ -31,7 +31,7 @@ def parse_args():
         help='step size for prining log info'
     )
     parser.add_argument(
-        '--metric_step', type=int, default=100,
+        '--metric_step', type=int, default=1000,
         help='step size to visualize metrics'
     )
     parser.add_argument(
