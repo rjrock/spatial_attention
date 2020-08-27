@@ -60,3 +60,12 @@ becomes apparent that not all words are visually grounded in the image. A natura
 extension to spatial attention is adaptive attention, where the model can learn to
 modulate its attention between the image and its LSTM cell memory. The paper [Knowing When
 to Look](https://arxiv.org/abs/1612.01887) details this approach.
+
+Another observation is how poorly described metrics are. How is CIDEr calculated in
+*Knowing When to Look*? is it using pycocotools or a hand implementation or something
+else? If it's using pycocotools, then there's a bug in the code and the code also uses a
+reference corpus that doesn't align with the validation data. Furthermore, using nltk
+METEOR gives me drastically different values from what *Show, Attend and Tell* and
+*Knowing When to Look* achieve. Although metrics are important for benchmarking, after
+writing this repo I more skeptically question the metric results of NLP papers, especially
+those that hardly detail how they calculate metrics.
