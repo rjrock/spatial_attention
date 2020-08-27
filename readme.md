@@ -18,7 +18,9 @@ vocab/embedding.
 ### Code
 
 I tested this on a fresh git clone on Arch with Python 3.8 and got it to run, but there
-might be systemwide dependencies I'm missing in these instructions.
+might be systemwide dependencies I'm missing in these instructions. Also, set the GPU
+you'd like to use in utils.settings.py. I have it set to cuda:1, since cuda:0 runs my
+desktop environment.
 
 First install the needed libraries and set PYTHONPATH
 ```bash
