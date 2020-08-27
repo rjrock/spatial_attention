@@ -9,9 +9,9 @@ class Beam:
     def __init__(self, model):
         self.decoder = model.decoder
         self.encoder = model.encoder
-        self.end     = model.vocab.end_idx
-        self.start   = model.vocab.start_idx
-        self.vocab   = model.vocab
+        self.end     = model.decoder.vocab.end_idx
+        self.start   = model.decoder.vocab.start_idx
+        self.vocab   = model.decoder.vocab
 
     def search(self, image, width=3, pay_attention=False):
         features = self.encoder(image)
@@ -20,8 +20,7 @@ class Beam:
         seen_end = False
         j = 0
         idx = 0
-        # Does 'j < 20' error for j = 19?
-        while j < 19 and not seen_end:
+        while j < 20 and not seen_end:
             paths = self.step(paths, width)
             if self.end in [path.leading_token for path in paths]:
                 seen_end = True

@@ -15,8 +15,7 @@ from models import Beam
 
 def parse_args():
     loadfile       = directory.models/'saved/27-0000.pt'
-#   val_annotation = directory.annotations/'val5000_img2caps.json'
-    val_annotation = directory.annotations/'train_img2caps.json'
+    val_annotation = directory.annotations/'val5000_img2caps.json'
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--image', type=str,
@@ -37,9 +36,9 @@ def main():
     model = model.eval()
     with open(args.annotation_file, 'r') as f:
         data = json.load(f)
-    img = image.sample_random_image(data)
     beam = Beam(model)
-    tokens, αs = beam.search(img, width=1, pay_attention=True)
+    img = image.sample_random_image(data, image_type='val')
+    tokens, αs = beam.search(img, width=5, pay_attention=True)
     img = image.normalize_image(img.squeeze(axis=0))
     viz.plot_attentions(αs, tokens, img)
 

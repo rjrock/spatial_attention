@@ -13,7 +13,6 @@ def plot_attention(α, token, img, i):
     rows = 2
     cols = 10
     α = α.reshape((7, 7))
-    print(np.max(α))
     weights = Image.fromarray(α)
     weights = weights.resize((224, 224), resample=PIL.Image.BILINEAR)
     plt.subplot(rows, cols, i)

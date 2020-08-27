@@ -29,10 +29,12 @@ def normalize_image(image):
     return image
 
 
-def sample_random_image(img2caps):
+def sample_random_image(img2caps, image_type='train'):
     nums = list(range(len(img2caps)))
     idx = np.random.choice(nums, size=1).squeeze(axis=0)
     imagename = list(img2caps.keys())[idx]
-#   image = load_image(directory.images/'val'/imagename, is_transform=True)
-    image = load_image(directory.images/'train'/imagename, is_transform=True)
+    if image_type == 'train':
+        image = load_image(directory.images/'train'/imagename, is_transform=True)
+    else:
+        image = load_image(directory.images/'val'/imagename, is_transform=True)
     return image
